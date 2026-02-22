@@ -1,14 +1,13 @@
 {
-	"title": "Enhanced C4",
-	"type":	"weapon",
-	"tags":	["fun", "roleplay"],
+	"title": "Material Color Tool",
+	"type":	"tool",
+	"tags":	["scenic"],
 	"ignore":
 	[
 		"*.bat",
 		"*.jpg",
 		"*.md",
 		".git*",
-		"source/*",
 		"LICENSE"
 	]
 }
