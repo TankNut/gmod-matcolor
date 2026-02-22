@@ -127,11 +127,19 @@ else
 				continue
 			end
 
-			if v:IsWorld() then
+			local model = v:GetModel()
+
+			if v:IsWorld() or not model then
 				continue
 			end
 
-			for i = 0, util.GetModelInfo(v:GetModel()).MaterialCount - 1 do
+			local info = util.GetModelInfo(model)
+
+			if not info or not info.MaterialCount then
+				continue
+			end
+
+			for i = 0, info.MaterialCount - 1 do
 				local submat = v:GetSubMaterial(i)
 
 				if submat == "" then
