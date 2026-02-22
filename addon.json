@@ -1,0 +1,14 @@
+{
+	"title": "Enhanced C4",
+	"type":	"weapon",
+	"tags":	["fun", "roleplay"],
+	"ignore":
+	[
+		"*.bat",
+		"*.jpg",
+		"*.md",
+		".git*",
+		"source/*",
+		"LICENSE"
+	]
+}
