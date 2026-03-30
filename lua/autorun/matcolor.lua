@@ -111,8 +111,9 @@ if CLIENT then
 		end
 	end)
 
-	hook.Add("InitPostEntity", "matcolor", function()
+	hook.Add("NetworkEntityCreated", "matcolor", function(ent)
 		net.Start("matcolor_sync")
+			net.WriteEntity(ent)
 		net.SendToServer()
 	end)
 else
@@ -120,47 +121,33 @@ else
 	util.AddNetworkString("matcolor_sync")
 
 	net.Receive("matcolor_sync", function(_, ply)
-		local data = {}
+		local ent = net.ReadEntity()
 
-		for _, v in pairs(ents.GetAll()) do
-			if not IsValid(v) or not v.GetSubMaterial then
-				continue
-			end
-
-			local model = v:GetModel()
-
-			if v:IsWorld() or not model then
-				continue
-			end
-
-			local info = util.GetModelInfo(model)
-
-			if not info or not info.MaterialCount then
-				continue
-			end
-
-			for i = 0, info.MaterialCount - 1 do
-				local submat = v:GetSubMaterial(i)
-
-				if submat == "" then
-					continue
-				end
-
-				if Reverse[submat] then
-					table.insert(data, {
-						v, i, submat, Colors[submat]
-					})
-				end
-			end
+		if not IsValid(ent) or not ent.GetSubMaterial then
+			return
 		end
 
-		for _, v in ipairs(data) do
-			net.Start("matcolor_create")
-				net.WriteEntity(v[1])
-				net.WriteUInt(v[2], 7)
-				net.WriteString(v[3])
-				net.WriteColor(v[4])
-			net.Send(ply)
+		local model = ent:GetModel()
+
+		if ent:IsWorld() or not model or model[1] == "*" then
+			return
+		end
+
+		for i = 0, #ent:GetMaterials() - 1 do
+			local submat = ent:GetSubMaterial(i)
+
+			if submat == "" then
+				continue
+			end
+
+			if Reverse[submat] then
+				net.Start("matcolor_create")
+					net.WriteEntity(ent)
+					net.WriteUInt(i, 16)
+					net.WriteString(submat)
+					net.WriteColor(Colors[submat])
+				net.Send(ply)
+			end
 		end
 	end)
 end
