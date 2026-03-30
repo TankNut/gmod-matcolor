@@ -7,6 +7,8 @@ TOOL.ClientConVar["r"] = 255
 TOOL.ClientConVar["g"] = 255
 TOOL.ClientConVar["b"] = 255
 
+TOOL.ClientConVar["lines"] = 32
+
 function TOOL:LeftClick(trace)
 	local ent = trace.Entity
 
@@ -191,6 +193,8 @@ if CLIENT then
 			local ent = self.TargetEntity
 			local materials = ent:GetMaterials()
 
+			local maxLines = self:GetClientNumber("lines", 32)
+
 			local offset = ScrW() * 0.5 - 50
 			local maxWidth = 0
 			local textHeight = 0
@@ -200,16 +204,15 @@ if CLIENT then
 			local header = string.format("%s: %s materials", ent, #materials)
 
 			maxWidth, textHeight = surface.GetTextSize(header)
-
 			maxWidth = maxWidth + textHeight + 2
 
-			for _, v in ipairs(materials) do
-				local width = surface.GetTextSize(v)
+			for k, v in ipairs(materials) do
+				local width = surface.GetTextSize(k + 1 .. ": " .. v)
 
 				maxWidth = math.max(maxWidth, width + textHeight + 2)
 			end
 
-			local listHeight = 13 + textHeight * (#materials + 1)
+			local listHeight = 13 + textHeight * math.min(#materials + 1, maxLines + 1)
 			local listWidth = 8 + maxWidth
 			local listX = offset - listWidth
 			local listY = ScrH() * 0.5 - listHeight * 0.5
@@ -231,11 +234,23 @@ if CLIENT then
 			surface.SetDrawColor(255, 255, 255, 255)
 			surface.DrawLine(listX + 2.5, listY + textHeight + 7, offset - 3.5, listY + textHeight + 7)
 
-			surface.SetDrawColor(0, 127, 0, 191)
-			surface.DrawRect(listX + 3, listY + textHeight + 9 + self:GetClientNumber("index", 0) * textHeight, listWidth - 6, textHeight)
+			local index = self:GetClientNumber("index", 0)
+			local shift = 0
 
-			for k, mat in ipairs(materials) do
-				local submat = ent:GetSubMaterial(k - 1)
+			local half = math.floor(maxLines * 0.5)
+
+			if #materials > maxLines and index >= math.floor(maxLines * 0.5) then
+				shift = index - half
+				index = half
+			end
+
+			surface.SetDrawColor(0, 127, 0, 191)
+			surface.DrawRect(listX + 3, listY + textHeight + 9 + index * textHeight, listWidth - 6, textHeight)
+
+			for i = shift, math.min(#materials - 1, shift + maxLines - 1) do
+				local k = i - shift + 1
+				local mat = materials[i + 1]
+				local submat = ent:GetSubMaterial(i)
 
 				if submat != "" then
 					mat = submat
@@ -249,7 +264,7 @@ if CLIENT then
 				end
 
 				surface.SetTextPos(listX + 4, listY + 9 + textHeight * k)
-				surface.DrawText(name)
+				surface.DrawText(i + 1 .. ": " .. name)
 
 				local color2 = Material(mat):GetVector("$color2"):ToColor()
 
@@ -267,6 +282,7 @@ if CLIENT then
 		panel:ToolPresets("matcolor", default)
 
 		panel:ColorPicker("#tool.matcolor.color", "matcolor_r", "matcolor_g", "matcolor_b").Mixer:SetAlphaBar(false)
+		panel:NumSlider("#tool.matcolor.lines", "matcolor_lines", 16, 64, 0)
 	end
 else
 	function TOOL:StoreEntityModifier(ent)
