@@ -26,7 +26,7 @@ function TOOL:LeftClick(trace)
 
 		net.Start("matcolor_create")
 			net.WriteEntity(ent)
-			net.WriteUInt(index, 7)
+			net.WriteUInt(index, 16)
 			net.WriteString(mat)
 			net.WriteColor(color)
 		net.Broadcast()
@@ -308,7 +308,7 @@ else
 
 				net.Start("matcolor_create")
 					net.WriteEntity(ent)
-					net.WriteUInt(index, 7)
+					net.WriteUInt(index, 16)
 					net.WriteString(mat)
 					net.WriteColor(color)
 				net.Broadcast()

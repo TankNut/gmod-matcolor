@@ -100,7 +100,7 @@ end
 if CLIENT then
 	net.Receive("matcolor_create", function()
 		local ent = net.ReadEntity()
-		local index = net.ReadUInt(7)
+		local index = net.ReadUInt(16)
 		local mat = net.ReadString()
 		local color = net.ReadColor(false)
 
