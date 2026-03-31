@@ -33,6 +33,7 @@ function TOOL:LeftClick(trace)
 			net.WriteColor(color)
 		net.Broadcast()
 
+		matcolor.SetupEntityHooks(ent)
 		self:StoreEntityModifier(ent)
 	end
 
@@ -295,40 +296,30 @@ else
 				continue
 			end
 
+			local base, occurrence = matcolor.GetOccurrence(ent, i)
+
 			table.insert(data, {
 				Material = matcolor.Reverse[submat],
 				Index = i,
+				Base = base,
+				Occurrence = occurrence,
 				Color = Material(submat):GetVector("$color2"):ToColor()
 			})
 		end
 
-		if #data == 0 then
-			duplicator.ClearEntityModifier(ent, "matcolor")
-		else
+		-- Clear stale data
+		duplicator.ClearEntityModifier(ent, "matcolor")
+
+		if #data > 0 then
 			duplicator.StoreEntityModifier(ent, "matcolor", data)
 		end
 	end
 
 	duplicator.RegisterEntityModifier("matcolor", function(ply, ent, data)
 		timer.Simple(1, function()
-			for _, v in ipairs(data) do
-				local mat = v.Material
-				local index = v.Index
-				local color = v.Color
+			if not IsValid(ent) then return end
 
-				color = Color(color.r, color.g, color.b)
-
-				local newMat = matcolor.Create(mat, color)
-
-				ent:SetSubMaterial(index, newMat)
-
-				net.Start("matcolor_create")
-					net.WriteEntity(ent)
-					net.WriteUInt(index, 16)
-					net.WriteString(mat)
-					net.WriteColor(color)
-				net.Broadcast()
-			end
+			matcolor.LoadEntityModifier(ent, data)
 		end)
 	end)
 end
