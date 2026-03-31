@@ -236,7 +236,7 @@ else
 			local index
 
 			if v.Base and v.Occurrence then
-				index = matcolor.FindMaterialIndex(ent, v.Base, v.Occurrence) or v.Index
+				index = FindIndex(ent, v.Base, v.Occurrence) or v.Index
 			end
 
 			if index == nil then
@@ -245,7 +245,7 @@ else
 
 			color = Color(color.r, color.g, color.b)
 
-			local newMat = matcolor.Create(mat, color)
+			local newMat = Create(mat, color)
 
 			ent:SetSubMaterial(index, newMat)
 
@@ -285,11 +285,15 @@ else
 			LoadEntityModifier(ent, mods.matcolor)
 
 			-- Re-install hooks for future saves
-			matcolor.SetupEntityHooks(ent)
+			SetupEntityHooks(ent)
 		end
 	end
 
 	hook.Add("Restore", "matcolor", function()
-		timer.Simple(1, matcolor.RestoreFromEntityMods)
+		timer.Simple(1, RestoreFromEntityMods)
+	end)
+
+	hook.Add("InitPostEntity", "matcolor", function()
+		timer.Simple(2, RestoreFromEntityMods)
 	end)
 end
