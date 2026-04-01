@@ -297,13 +297,14 @@ else
 			end
 
 			local base, occurrence = matcolor.GetOccurrence(ent, i)
+			local color = matcolor.Colors[submat] or color_white
 
 			table.insert(data, {
 				Material = matcolor.Reverse[submat],
 				Index = i,
 				Base = base,
 				Occurrence = occurrence,
-				Color = Material(submat):GetVector("$color2"):ToColor()
+				Color = color
 			})
 		end
 
