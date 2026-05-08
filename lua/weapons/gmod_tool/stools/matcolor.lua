@@ -49,11 +49,14 @@ function TOOL:RightClick(trace)
 
 	if SERVER then
 		local index = self:GetClientNumber("index", 0)
-
 		local reverse = matcolor.Reverse[ent:GetSubMaterial(index)]
 
 		if reverse then
-			ent:SetSubMaterial(index, reverse)
+			if reverse == ent:GetMaterials()[index + 1] then
+				ent:SetSubMaterial(index, "")
+			else
+				ent:SetSubMaterial(index, reverse)
+			end
 
 			self:StoreEntityModifier(ent)
 		end
